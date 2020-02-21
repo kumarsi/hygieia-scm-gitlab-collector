@@ -66,7 +66,7 @@ gitlab.port=${GITLAB_PORT:-}
 gitlab.path=${GITLAB_PATH:-}
   
 #Gitlab API Token (required, access token can be retrieved through gitlab, collector will have the permissions of the user associated to the token)
-gitlab.apiToken=${GITLAB_API_TOKEN:-}
+gitlab.apiToken=${GITLAB_DEFAULT_API_TOKEN:-}
 
 #Maximum number of days to go back in time when fetching commits
 #This seems to be unused!
