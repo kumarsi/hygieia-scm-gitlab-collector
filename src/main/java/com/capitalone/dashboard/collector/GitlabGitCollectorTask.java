@@ -222,11 +222,11 @@ public class GitlabGitCollectorTask  extends CollectorTask<Collector> {
 	private void processPipelineCommits(List<Commit> commits) {
 		List<Commit> commitsToConsider = commits;
 
-		if (gitlabSettings.isConsiderOnlyMergeCommits()) {
-			LOG.info("Considering only merge commits to be added on the pipeline collection...");
-			commitsToConsider = commits.stream()
-					.filter(c -> c.getScmParentRevisionNumbers().size() > 1).collect(Collectors.toList());
-		}
+//		if (gitlabSettings.isConsiderOnlyMergeCommits()) {
+//			LOG.info("Considering only merge commits to be added on the pipeline collection...");
+//			commitsToConsider = commits.stream()
+//					.filter(c -> c.getScmParentRevisionNumbers().size() > 1).collect(Collectors.toList());
+//		}
 		if (commitsToConsider.isEmpty()) {
 			LOG.info("No commits to be added on the pipeline collection during this scheduled run...");
 			return;
