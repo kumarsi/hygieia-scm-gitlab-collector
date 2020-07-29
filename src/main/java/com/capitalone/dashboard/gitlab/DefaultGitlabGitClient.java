@@ -2,10 +2,7 @@ package com.capitalone.dashboard.gitlab;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -70,10 +67,8 @@ public class DefaultGitlabGitClient implements GitlabGitClient {
 	@Override
 	public List<Commit> getCommits(GitlabGitRepo repo, boolean firstRun) {
 		Map<String, Commit> commits = new HashMap<>();
-
-		String[] branches = new String[]{ "master", "develop" };
 		for (String branch:
-			 branches) {
+				Arrays.asList(repo.getBranch().split("\\|"))) {
 			List<Commit> commitsForBranch = getCommitsForBranch(branch, repo, firstRun);
 			LOG.info(String.format("Processing %d commits from branch %s", commitsForBranch.size(), branch));
 			Map<String, Commit> commitMapForBranch =

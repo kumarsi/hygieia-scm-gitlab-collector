@@ -16,13 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -146,7 +140,7 @@ public class GitlabGitCollectorTask  extends CollectorTask<Collector> {
 				Map<Long, String> mrCloseMap = allMRs.stream().collect(Collectors.toMap(GitRequest::getUpdatedAt,
 						GitRequest::getNumber, (oldValue, newValue) -> oldValue));
 				boolean isGetMergeRequestsFirstRun = isGitRequestFirstRun(isRepoFirstRun, start, allMRs);
-				List<GitRequest> pulls = gitlabClient.getMergeRequests(repo, "all", isGetMergeRequestsFirstRun,
+				List<GitRequest> pulls = trySafeMergeRequestFetch(repo, isGetMergeRequestsFirstRun,
 						mrCloseMap);
 				pullCount += processList(repo, pulls, "pull");
 
@@ -174,7 +168,17 @@ public class GitlabGitCollectorTask  extends CollectorTask<Collector> {
         log("Finished", start);
     }
 
-    private boolean isGitRequestFirstRun(boolean isRepoFirstRun, long start, List<GitRequest> allGitRequests) {
+	private List<GitRequest> trySafeMergeRequestFetch(GitlabGitRepo repo, boolean isGetMergeRequestsFirstRun, Map<Long, String> mrCloseMap) {
+		try {
+			return gitlabClient.getMergeRequests(repo, "all", isGetMergeRequestsFirstRun,
+					mrCloseMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Collections.emptyList();
+		}
+	}
+
+	private boolean isGitRequestFirstRun(boolean isRepoFirstRun, long start, List<GitRequest> allGitRequests) {
         boolean isGitRequestFirstRun = isRepoFirstRun;
 
         if (!isGitRequestFirstRun) {
