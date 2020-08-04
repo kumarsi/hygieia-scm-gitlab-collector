@@ -2,11 +2,11 @@ package com.capitalone.dashboard.gitlab;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -66,7 +66,26 @@ public class DefaultGitlabGitClient implements GitlabGitClient {
 
 	@Override
 	public List<Commit> getCommits(GitlabGitRepo repo, boolean firstRun) {
+		Map<String, Commit> commits = new HashMap<>();
+		for (String branch:
+				Arrays.asList(repo.getBranch().split("\\|"))) {
+			List<Commit> commitsForBranch = getCommitsForBranch(branch, repo, firstRun);
+			LOG.info(String.format("Processing %d commits from branch %s", commitsForBranch.size(), branch));
+			Map<String, Commit> commitMapForBranch =
+					commitsForBranch.stream().collect(Collectors.toMap(Commit::getScmRevisionNumber, commit -> commit,
+							(x, y) -> x.getScmCommitTimestamp() < y.getScmCommitTimestamp() ? x : y));
+			commits.putAll(commitMapForBranch);
+		}
+		List<Commit> allCommits = new ArrayList<>(commits.values());
+		LOG.info(String.format("Accumulated %d commits from all branches", allCommits.size()));
+		return allCommits;
+	}
+
+
+	public List<Commit> getCommitsForBranch(String branch, GitlabGitRepo repo, boolean firstRun) {
 		List<Commit> commits = new ArrayList<>();
+		//WIP: Get rid of ugly mutation
+		repo.setBranch(branch);
 
 		URI apiUrl = gitlabUrlUtility.buildCommitsApiUrl(repo, firstRun, GitlabUrlUtility.RESULTS_PER_PAGE);
 		String providedApiToken = repo.getUserId();
