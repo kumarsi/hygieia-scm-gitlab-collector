@@ -81,6 +81,7 @@ gitlab.apiVersion=${GITLAB_API_VERSION:-4}
 gitlab.firstRunHistoryDays=${GITLAB_COMMIT_THRESHOLD_DAYS:-365}
 #Should consider only merge commits
 gitlab.considerOnlyMergeCommits=${GITLAB_CONSIDER_ONLY_MERGE_COMMITS:-true}
+gitlab.useProjectId=${GITLAB_USE_PROJECT_ID:-false}
 EOF
 
 echo "
